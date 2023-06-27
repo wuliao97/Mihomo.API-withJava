@@ -2,7 +2,6 @@ package org.starrail;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -10,8 +9,6 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.io.InputStreamReader;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MihomoAPI {
@@ -27,7 +24,7 @@ public class MihomoAPI {
     }
 
 
-    public final String requests(final String material_url) throws Exception {
+    public static String requests(final String material_url) throws Exception {
         final URL url = new URI(material_url).toURL();
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -47,15 +44,32 @@ public class MihomoAPI {
 
 
     public String fetch(final String UID) throws Exception {
-        return requests(this.BASE_URL + "/" + UID + "?lang=" + this.Language);
-
+        return requests(BASE_URL + "/" + UID + "?lang=" + Language);
     }
 
-    public JsonNode convert(final String src) throws JsonProcessingException {
+    public JsonNode convertToNode(final String src) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readTree(src);
     }
 
+    public StringBuilder getIcon(final String path){
+        StringBuilder sb = new StringBuilder(this.ASSET_URL);
+        sb.append("/").append(path);
+        return sb;
+    }
+
+    public JsonNode getDefault(final String UID) throws Exception {
+        String src = fetch(UID);
+        return new ObjectMapper().readTree(src);
+    }
+
+    public JsonNode getPlayer(final JsonNode src){
+        return src.get("player");
+    }
+
+    public JsonNode getCharacters(final JsonNode src){
+        return src.get("characters");
+    }
 
     public JsonNode D_parse(final JsonNode obj, String... keys){
         JsonNode result = obj;
